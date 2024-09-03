@@ -163,10 +163,6 @@ public:
     Q_INVOKABLE void setDependsOnLocalInstallerBinary();
     Q_INVOKABLE bool localInstallerBinaryUsed();
 
-    Q_INVOKABLE QList<QVariant> execute(const QString &program,
-        const QStringList &arguments = QStringList(), const QString &stdIn = QString(),
-        const QString &stdInCodec = QLatin1String("latin1"),
-        const QString &stdOutCodec = QLatin1String("latin1")) const;
     Q_INVOKABLE bool executeDetached(const QString &program,
         const QStringList &arguments = QStringList(),
         const QString &workingDirectory = QString()) const;
@@ -239,7 +235,6 @@ public:
 
     Q_INVOKABLE bool isFileExtensionRegistered(const QString &extension) const;
     Q_INVOKABLE bool fileExists(const QString &filePath) const;
-    Q_INVOKABLE QString readFile(const QString &filePath, const QString &codecName) const;
     Q_INVOKABLE QString readConsoleLine(const QString &title = QString(), qint64 maxlen = 0) const;
 
     Q_INVOKABLE QString toNativeSeparators(const QString &path);

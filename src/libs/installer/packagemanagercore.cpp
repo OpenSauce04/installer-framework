@@ -1028,31 +1028,6 @@ bool PackageManagerCore::fileExists(const QString &filePath) const
 }
 
 /*!
-    Returns the contents of the file \a filePath using the encoding specified
-    by \a codecName. The file is read in the text mode, that is, end-of-line
-    terminators are translated to the local encoding.
-
-    \note If the file does not exist or an error occurs while reading the file, an
-     empty string is returned.
-
-    \sa {installer::readFile}{installer.readFile}
-
- */
-QString PackageManagerCore::readFile(const QString &filePath, const QString &codecName) const
-{
-    QFile f(filePath);
-    if (!f.open(QIODevice::ReadOnly | QIODevice::Text))
-        return QString();
-
-    QTextCodec *codec = QTextCodec::codecForName(qPrintable(codecName));
-    if (!codec)
-        return QString();
-
-    QTextStream stream(&f);
-    return QString::fromUtf8(codec->fromUnicode(stream.readAll()));
-}
-
-/*!
  * Prints \a title to console and reads console input. Function will halt the
  * installer and wait for user input. Returns a line which user has typed into
  * console. The maximum allowed line length is set to \a maxlen. If the stream
@@ -3522,63 +3497,6 @@ bool PackageManagerCore::localInstallerBinaryUsed()
     return KDUpdater::pathIsOnLocalDevice(qApp->applicationFilePath());
 #endif
     return true;
-}
-
-/*!
-    Starts the program \a program with the arguments \a arguments in a
-    new process and waits for it to finish.
-
-    \a stdIn is sent as standard input to the application.
-
-    \a stdInCodec is the name of the codec to use for converting the input string
-    into bytes to write to the standard input of the application.
-
-    \a stdOutCodec is the name of the codec to use for converting data written by the
-    application to standard output into a string.
-
-    Returns an empty array if the program could not be executed, otherwise
-    the output of command as the first item, and the return code as the second.
-
-    \note On Unix, the output is just the output to stdout, not to stderr.
-
-    \sa {installer::execute}{installer.execute}
-    \sa executeDetached()
-*/
-QList<QVariant> PackageManagerCore::execute(const QString &program, const QStringList &arguments,
-    const QString &stdIn, const QString &stdInCodec, const QString &stdOutCodec) const
-{
-    QProcessWrapper process;
-
-    QString adjustedProgram = replaceVariables(program);
-    QStringList adjustedArguments;
-    foreach (const QString &argument, arguments)
-        adjustedArguments.append(replaceVariables(argument));
-    QString adjustedStdIn = replaceVariables(stdIn);
-
-    process.start(adjustedProgram, adjustedArguments,
-        adjustedStdIn.isNull() ? QIODevice::ReadOnly : QIODevice::ReadWrite);
-
-    if (!process.waitForStarted())
-        return QList< QVariant >();
-
-    if (!adjustedStdIn.isNull()) {
-        QTextCodec *codec = QTextCodec::codecForName(qPrintable(stdInCodec));
-        if (!codec)
-            return QList<QVariant>();
-
-        QTextEncoder encoder(codec);
-        process.write(encoder.fromUnicode(adjustedStdIn));
-        process.closeWriteChannel();
-    }
-
-    process.waitForFinished(-1);
-
-    QTextCodec *codec = QTextCodec::codecForName(qPrintable(stdOutCodec));
-    if (!codec)
-        return QList<QVariant>();
-    return QList<QVariant>()
-            << QTextDecoder(codec).toUnicode(process.readAllStandardOutput())
-            << process.exitCode();
 }
 
 /*!
