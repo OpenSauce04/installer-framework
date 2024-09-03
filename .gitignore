@@ -96,3 +96,7 @@ doc/codeattributions.qdoc
 /src/sdk/installerbase.qrc
 /src/sdk/translations/untranslated.ts
 /src/sdk/translations/ifw_en.ts
+
+qdoc_wrapper.sh
+moc_predefs.h*
+tools/repocompare/repocompare
